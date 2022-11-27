@@ -1,0 +1,186 @@
+---
+title: "Lab 3"
+output: html_document
+---
+
+>Team members:
+>
+>Andrii Yaroshevych, OLeg Omelchuk, Yaroslav Tkachuk
+
+## Part I: Markov Chain
+
+Determine the TLN (that stands for the team lucky number) as a three-digit number which is the team id number
+with an extra zero added from the left; e.g., TLN is 028 for team id number 28. In this part, you will study the questions
+about chances to see the TLN in random sequences of digits.
+
+```{r}
+TLN <- "001"
+```
+
+### Problem 1. In the first part, we will estimate the probability that a random digit sequence of length n contains the TLN (consider the cases n = 100, n = 200, n = 1000).
+
+#### 1.  Estimate numerically the probability $\hat{p_n}$ of the event that your TLN occurs in a random digit sequence $d_1 \ldots d_n$ of length n.
+
+> Hint: Such a sequence can be generated with R command `sample(0:9, n, replace=T)`. You will need to generate
+a sample of such sequences of sufficiently large size $N$.
+
+The unbiased estimator of the probability is the proportion of sequences that contain the TLN.
+
+$$
+\hat{p_n} = \frac{1}{N} \sum_{i=1}^N I(d_i \ldots d_n \text{ contains TLN})
+$$
+
+```{r}
+N <- 10000
+n <- c(100, 200, 1000)
+p <- c()
+
+is_sebseq <- function(x, y) grepl(paste(y, collapse = ""), paste(x, collapse = ""))
+
+for (i in seq_along(n)) {
+    p[i] <- mean(apply(matrix(sample(0:9, n[i]*N, replace=T), nrow = N), 1, is_sebseq, TLN))
+}
+
+print("For n = 100, 200, 1000, the probability of the event that the TLN occurs in a random digit sequence is:")
+print(p)
+```
+
+#### 2. Identify the Markov chain structure with four states S0, S1, S2, S3 in this sequence with Sk denoting the
+number of correct last digits (eg., for the team id number 028 these states will be S0 =“*”, S1 =“0”, S2 =“02”,
+S3 =“028”). Determine the transition probabilities matrix P and find the limiting probability pn for the state
+“028”. Compare with the result obtained in part 1.
+
+We define the following states:
+
+- S0: "*"
+- S1: "0"
+- S2: "00"
+- S3: "001"
+
+The transition matrix is:
+
+$$
+P = \begin{pmatrix}
+0.9 & 0.1 & 0 & 0 \\
+0.9 & 0 & 0.1 & 0 \\
+0.8 & 0 & 0.1 & 0.1 \\
+0 & 0 & 0 & 1 \\
+\end{pmatrix}
+$$
+
+```{r}
+P <- matrix(c(0.9, 0.1, 0, 0,
+              0.9, 0, 0.1, 0,
+              0.8, 0, 0.1, 0.1,
+              0, 0, 0, 1), nrow = 4, byrow = TRUE)
+
+calculate_by_eigenvector <- function (P) {
+    vector <- eigen(t(P))$vectors[, 1]
+    return(sapply(vector / sum(vector), Re))
+}
+
+calculate_by_power_method <- function (P, n) {
+    for (i in 1:n) {
+        P <- P %*% P
+    }
+    return(P[1,])
+}
+
+print("The limiting probability by eigenvector pn for the state “028” is:")
+print(calculate_by_eigenvector(P)[4])
+
+print("The limiting probability by power method pn for the state “028” is:")
+print(calculate_by_power_method(P, 100)[4])
+```
+
+We can see that limiting probabilities computed by eigenvector and power method coincide with the result obtained in part 1.
+
+#### 3. Determine approximately the sample size $N$ which guarantees that the absolute error $\lvert\hat{p_n} - p_n\rvert$ of the estimate $\hat{p_n}$ is below 0.03 with confidence level of at least 95 percent. Rerun the experiments for n = 1000 with the determined size $N$ to illustrate the confidence interval and confidence level.
+
+
+### Problem 2. In the setting of Problem 1, assume that the random digit generation stops at the first occurrence of the TLN (i.e., that the state S4 of the Markov chain is now absorbing). In this problem, you will estimate the average length of such sequences (i.e., the average time till absorption in the Markov chain).
+
+#### 1. Make necessary amendments to the transition probabilities matrix $P$ above and solve the corresponding system to find the expected time $E(T)$ till absorption.
+
+The transition matrix is:
+
+$$
+P = \begin{pmatrix}
+0.9 & 0.1 & 0 & 0 \\
+0.9 & 0 & 0.1 & 0 \\
+0.8 & 0 & 0.1 & 0.1 \\
+0 & 0 & 0 & 1 \\
+\end{pmatrix}
+$$
+
+The system of equations is:
+
+$$
+\begin{cases}
+\mu_1 = 1 + 0.9\mu_1 + 0.1\mu_2 \\
+\mu_2 = 1 + 0.9\mu_1 + 0.1\mu_3 \\
+\mu_3 = 1 + 0.8\mu_1 + 0.1\mu_3 + 0.1\mu_4 \\
+\mu_4 = 0
+\end{cases}
+$$
+
+After solving the system of equations, we get:
+
+$$
+\mu_1 = 1000 \\
+\mu_2 = 990 \\
+\mu_3 = 890 \\
+\mu_4 = 0
+$$
+
+Thus, $E(T) = \mu_1 = 1000$.
+
+#### 2. Estimate numerically the expected length $E(T)$ till the first occurrence of the TLN by running a sufficiently large number $N$ of experiments.
+
+Here, the unbiased estimator of $E(T)$ is the average of the lengths of the first occurrences of the TLN in the random digit sequences.
+
+$$
+\hat{\theta} = \overline{T} = \frac{1}{N}\sum_{i=1}^{N}T_i
+$$
+
+```{r}
+N <- 1000
+sequence <- c(1, 1, 1)
+expected_length <- 0
+
+for (i in 1:N) {
+    length <- 3
+    while (TRUE) {
+        sequence[length] <- sample(0:9, 1)
+        if (sequence[length] == TLN[3] && sequence[length - 1] == TLN[2] && sequence[length - 2] == TLN[1]) {
+            break
+        }
+        length <- length + 1
+    }
+    expected_length <- expected_length + length
+}
+
+expected_length <- expected_length / N
+print("The expected length E(T) till the first occurrence of the TLN is:")
+print(expected_length)
+```
+
+We can see that the numerically expected length $E(T)$ till the first occurrence of the TLN is close to the result obtained theoretically.
+
+#### 3. Find the sample size $N$ which guarantees that the absolute error $\lvert\hat{\theta} - \theta\rvert$ of the estimate does not exceed 10 with confidence level of at least 95 percent.
+
+> Hint: use Chebyshev inequality and estimate the standard deviation of $T$ by the standard error of the sample
+$T_1, \ldots, T_N$.
+
+The standard error of the sample $T_1, \ldots, T_N$ is:
+
+$$
+\sigma = \sqrt{\frac{1}{N}\sum_{i=1}^{N}(T_i - \overline{T})^2}
+$$
+
+The Chebyshev inequality states that:
+
+$$
+P(\lvert\hat{\theta} - \theta\rvert \geq \epsilon) \leq \frac{\sigma^2}{\epsilon^2}
+$$
+

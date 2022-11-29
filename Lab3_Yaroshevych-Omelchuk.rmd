@@ -99,7 +99,7 @@ print(calculate_by_power_method(P, 100)[4])
 
 We can see that limiting probabilities computed by eigenvector and power method coincide with the result obtained in part 1.
 
-#### 3. Determine approximately the sample size $N$ which guarantees that the absolute error $\lvert\hat{p_n} - p_n\rvert$ of the estimate $\hat{p_n}$ is below 0.03 with confidence level of at least 95 percent. Rerun the experiments for n = 1000 with the determined size $N$ to illustrate the confidence interval and confidence level.
+#### 3. Determine approximately the sample size $N$ which guarantees that the absolute error $\lvert\hat{p_n} - p_n\vert$ of the estimate $\hat{p_n}$ is below 0.03 with confidence level of at least 95 percent. Rerun the experiments for n = 1000 with the determined size $N$ to illustrate the confidence interval and confidence level.
 
 The unbiased estimator of the probability that a random digit sequence of length n contains the TLN is the proportion of sequences that contain the TLN.
 

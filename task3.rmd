@@ -9,11 +9,14 @@ library(crayon)
 id <- 1
 
 n <- 10000
-m <- 1000
+m <- 5000
 alphas <- c(0.1, 0.05, 0.01)
 theta <- id / 10
 lambda <- 1 / theta
 datas <- matrix(rexp(n * m, rate = lambda), nrow = n)
+
+
+alphas <- c(0.1, 0.05, 0.01)
 ```
 
 ### A. Verify that the confidence intervals of level 1 − a constructed via (1)–(4) above contain the parameter θ = 1/λ approx. 100(1 − α)% of times.
@@ -28,17 +31,20 @@ $$\left[\frac{\chi^2(2n,\ \alpha/2)}{2n\overline{x}},\ \frac{\chi^2(2n,\ 1-\alph
 $\chi^2(v,\ p)$ is the p'th quantile of chi-square distribution with v degrees of dreedom
 
 ```{r}
-alpha <- 0.1
-contains <- 0
-for (i in 1:m) {
-    sample_mean <- mean(datas[, i])
-    left <- qchisq(alpha / 2, df = 2 * n) / (2 * sample_mean * n)
-    right <- qchisq(1 - alpha / 2, df = 2 * n) / (2 * sample_mean * n)
-    if (left <= lambda & lambda <= right) {
-        contains <- contains + 1
+corrects <- c(0, 0, 0)
+for (k in 1:3) {
+    for (i in 1:m) {
+        mean <- mean(datas[, i])
+        left <- qchisq(alphas[k] / 2, df = 2 * n) / (2 * mean * n)
+        right <- qchisq(1 - alphas[k] / 2, df = 2 * n) / (2 * mean * n)
+        if (left <= lambda & lambda <= right) {
+            corrects[k] <- corrects[k] + 1
+        }
     }
 }
-print(contains / m)
+for (k in 1:3) {
+    cat("The approximation of parameter lambda when alpha =", alphas[k], "is:", corrects[k] / m, "\n")
+}
 ```
 
 #### (2) Approximating using normal approximation.
@@ -48,6 +54,24 @@ $$\overline{X}=\frac{1}{n}\sum^{iid}X_i \sim \mathcal{N}(\theta,\ \theta^2/n)$$
 
 ```{r}
 mu <- theta
-var <- theta^2
+sd <- theta
+
+corrects <- c(0, 0, 0)
+for (k in 1:3) {
+    for (i in 1:m) {
+        mean <- mean(datas[, i])
+        z <- qnorm(1 - alphas[k] / 2, mean = 0, sd = 1)
+        epsilon <- sd / sqrt(n) * z
+        
+        left <- mean - epsilon
+        right <- mean + epsilon
+        if (left <= theta & theta <= right) {
+            corrects[k] <- corrects[k] + 1
+        }
+    }
+}
+for (k in 1:3) {
+    cat("The approximation of parameter lambda when alpha =", alphas[k], "is:", corrects[k] / m, "\n")
+}
 ```
 

@@ -14,7 +14,9 @@ with an extra zero added from the left; e.g., TLN is 028 for team id number 28. 
 about chances to see the TLN in random sequences of digits.
 
 ```{r}
-TLN <- "001"
+ID <- 1
+
+TLN <- paste0("00", ID)
 ```
 
 ### Problem 1. In the first part, we will estimate the probability that a random digit sequence of length n contains the TLN (consider the cases n = 100, n = 200, n = 1000).
@@ -31,6 +33,7 @@ $$
 $$
 
 ```{r}
+TLN <- as.numeric(strsplit(TLN, "")[[1]])
 N <- 10000
 n <- c(100, 200, 1000)
 p <- c()
@@ -146,7 +149,7 @@ $$
 ```{r}
 N <- 1000
 sequence <- c(1, 1, 1)
-expected_length <- 0
+expected_length <- c()
 
 for (i in 1:N) {
     length <- 3
@@ -157,12 +160,11 @@ for (i in 1:N) {
         }
         length <- length + 1
     }
-    expected_length <- expected_length + length
+    expected_length[i] <- length
 }
 
-expected_length <- expected_length / N
 print("The expected length E(T) till the first occurrence of the TLN is:")
-print(expected_length)
+print(mean(expected_length))
 ```
 
 We can see that the numerically expected length $E(T)$ till the first occurrence of the TLN is close to the result obtained theoretically.
@@ -178,9 +180,28 @@ $$
 \sigma = \sqrt{\frac{1}{N}\sum_{i=1}^{N}(T_i - \overline{T})^2}
 $$
 
-The Chebyshev inequality states that:
+By definition, the $\varepsilon$ is:
 
 $$
-P(\lvert\hat{\theta} - \theta\rvert \geq \epsilon) \leq \frac{\sigma^2}{\epsilon^2}
+\varepsilon = \frac{\sigma}{\sqrt{N}} z_{1 - \frac{\alpha}{2}}
 $$
+
+Thus, the sample size $N$ is:
+
+$$
+N = \frac{z_{1 - \frac{\alpha}{2}}^2\sigma^2}{\varepsilon^2}
+$$
+
+```{r}
+alpha <- 0.05
+z <- qnorm(1 - alpha / 2)
+sigma <- sd(expected_length)
+epsilon <- 10
+
+N <- (z^2 * sigma^2) / epsilon^2
+
+print("The sample size N which guarantees that the absolute error of the estimate does not exceed 10 with confidence level of at least 95 percent is:")
+print(N)
+```
+
 

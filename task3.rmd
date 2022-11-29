@@ -26,7 +26,7 @@ alphas <- c(0.1, 0.05, 0.01)
 $$\mathcal{E}(\lambda) \sim \mathcal{G}(1,\ 1/{\lambda})$$
 $$\sum^{iid}\mathcal{G}(1,\ 1/{\lambda}) \sim \mathcal{G}(n,\ 1/{\lambda})\sim 0.5\chi^2_{2n}$$
 
-A two-sided $(1-\alpha)100$ confidence interval for $\lambda$ then is:
+The $(1-\alpha)100$ confidence interval for $\lambda$ then is:
 $$\left[\frac{\chi^2(2n,\ \alpha/2)}{2n\overline{x}},\ \frac{\chi^2(2n,\ 1-\alpha/2)}{2n\overline{x}}\right]$$
 $\chi^2(v,\ p)$ is the p'th quantile of chi-square distribution with v degrees of dreedom
 
@@ -47,13 +47,14 @@ for (k in 1:3) {
 }
 ```
 
-#### (2) Approximating using normal approximation.
+#### (2) Approximating using normal approximation with known variance.
 $$ \mu=\theta\ \ \ \ \sigma^2 = \theta^2 $$
 $$ X\sim\mathcal{N}(\theta,\ \theta^2)$$
-$$\overline{X}=\frac{1}{n}\sum^{iid}X_i \sim \mathcal{N}(\theta,\ \theta^2/n)$$
+
+The $(1-\alpha)$ confidence level for $\lambda$ then is:
+$$\left[\overline{X} - \frac{\sigma}{\sqrt{n}}Z_{1-\alpha/2},\overline{X} + \frac{\sigma}{\sqrt{n}}Z_{1-\alpha/2}\right]$$
 
 ```{r}
-mu <- theta
 sd <- theta
 
 corrects <- c(0, 0, 0)
@@ -62,7 +63,7 @@ for (k in 1:3) {
         mean <- mean(datas[, i])
         z <- qnorm(1 - alphas[k] / 2, mean = 0, sd = 1)
         epsilon <- sd / sqrt(n) * z
-        
+
         left <- mean - epsilon
         right <- mean + epsilon
         if (left <= theta & theta <= right) {
@@ -75,3 +76,26 @@ for (k in 1:3) {
 }
 ```
 
+#### (3) Approximating using normal approximation with unknown variance.
+Basically doing same steps as in (2), but now we are calculating standart deviation from our sample. 
+
+```{r}
+corrects <- c(0, 0, 0)
+for (k in 1:3) {
+    for (i in 1:m) {
+        mean <- mean(datas[, i])
+        sd <- sd(datas[, i])
+        z <- qnorm(1 - alphas[k] / 2, mean = 0, sd = 1)
+        epsilon <- sd / sqrt(n) * z
+
+        left <- mean - epsilon
+        right <- mean + epsilon
+        if (left <= theta & theta <= right) {
+            corrects[k] <- corrects[k] + 1
+        }
+    }
+}
+for (k in 1:3) {
+    cat("The approximation of parameter lambda when alpha =", alphas[k], "is:", corrects[k] / m, "\n")
+}
+```

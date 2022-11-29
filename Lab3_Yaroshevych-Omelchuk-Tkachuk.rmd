@@ -5,7 +5,7 @@ output: html_document
 
 >Team members:
 >
->Andrii Yaroshevych, OLeg Omelchuk, Yaroslav Tkachuk
+>Andrii Yaroshevych, OLeg Omelchuk
 
 ## Part I: Markov Chain
 

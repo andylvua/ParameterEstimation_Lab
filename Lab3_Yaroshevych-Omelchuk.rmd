@@ -1,11 +1,12 @@
 ---
 title: "Lab 3"
 output: html_document
+editor_options:
+markdown:
+wrap: 72
 ---
 
->Team members:
->
->Andrii Yaroshevych, OLeg Omelchuk
+> Team members: Andrii Yaroshevych, OLeg Omelchuk
 
 ## Part I: Markov Chain
 
@@ -41,7 +42,7 @@ p <- c()
 is_sebseq <- function(x, y) grepl(paste(y, collapse = ""), paste(x, collapse = ""))
 
 for (i in seq_along(n)) {
-    p[i] <- mean(apply(matrix(sample(0:9, n[i]*N, replace=T), nrow = N), 1, is_sebseq, TLN))
+  p[i] <- mean(apply(matrix(sample(0:9, n[i] * N, replace = T), nrow = N), 1, is_sebseq, TLN))
 }
 
 print("For n = 100, 200, 1000, the probability of the event that the TLN occurs in a random digit sequence is:")
@@ -77,16 +78,16 @@ P <- matrix(c(0.9, 0.1, 0, 0,
               0.8, 0, 0.1, 0.1,
               0, 0, 0, 1), nrow = 4, byrow = TRUE)
 
-calculate_by_eigenvector <- function (P) {
-    vector <- eigen(t(P))$vectors[, 1]
-    return(sapply(vector / sum(vector), Re))
+calculate_by_eigenvector <- function(P) {
+  vector <- eigen(t(P))$vectors[, 1]
+  return(sapply(vector / sum(vector), Re))
 }
 
-calculate_by_power_method <- function (P, n) {
-    for (i in 1:n) {
-        P <- P %*% P
-    }
-    return(P[1,])
+calculate_by_power_method <- function(P, n) {
+  for (i in 1:n) {
+    P <- P %*% P
+  }
+  return(P[1,])
 }
 
 print("The limiting probability by eigenvector pn for the state “028” is:")
@@ -98,9 +99,45 @@ print(calculate_by_power_method(P, 100)[4])
 
 We can see that limiting probabilities computed by eigenvector and power method coincide with the result obtained in part 1.
 
-#### 3. Determine approximately the sample size $N$ which guarantees that the absolute error $\lvert\hat{p_n} - p_n\rvert$ of the estimate $\hat{p_n}$ is below 0.03 with confidence level of at least 95 percent. Rerun the experiments for n = 1000 with the determined size $N$ to illustrate the confidence interval and confidence level.
+#### 3. Determine approximately the sample size $N$ which guarantees that the absolute error $\lvert\hat{p_n} - p_n\vert$ of the estimate $\hat{p_n}$ is below 0.03 with confidence level of at least 95 percent. Rerun the experiments for n = 1000 with the determined size $N$ to illustrate the confidence interval and confidence level.
 
+The unbiased estimator of the probability that a random digit sequence of length n contains the TLN is the proportion of sequences that contain the TLN.
 
+$$
+{p_n} = \frac{1}{N} \sum_{i=1}^N I(d_i \ldots d_n \text{ contains TLN})
+$$
+
+The variance of the estimator is:
+
+$$
+\text{Var}({p_n}) = \frac{\hat{p_n}(1 - \hat{p_n})}{N}
+$$
+
+Thus, the absolute error $\lvert\hat{p_n} - p_n\rvert$ of the estimate $\hat{p_n}$ can be estimated as:
+
+$$
+\lvert\hat{p_n} - p_n\rvert = \sqrt{\frac{\hat{p_n}(1 - \hat{p_n})}{N}}
+$$
+
+Confidence interval for the probability $p_n$ is defined as:
+
+$$
+1 - \alpha = P(\hat{p_n} \in \hat{p_n} \pm z_{\alpha/2} \sqrt{\frac{p_n(1 - p_n)}{N}})
+$$
+
+```{r}
+n <- 1000
+p <- mean(apply(matrix(sample(0:9, n * N, replace = T), nrow = N), 1, is_sebseq, TLN))
+alpha <- 0.05
+z <- qnorm(1 - alpha / 2)
+N <- ceiling(p * (1 - p) / (z^2 * 0.03^2))
+
+print("The sample size N which guarantees that the absolute error of the estimate is below 0.03 with confidence level of at least 95 percent is:")
+print(N)
+
+print("The confidence interval for the probability is:")
+print(p + c(-1, 1) * z * sqrt(p * (1 - p) / N))
+```
 ### Problem 2. In the setting of Problem 1, assume that the random digit generation stops at the first occurrence of the TLN (i.e., that the state S4 of the Markov chain is now absorbing). In this problem, you will estimate the average length of such sequences (i.e., the average time till absorption in the Markov chain).
 
 #### 1. Make necessary amendments to the transition probabilities matrix $P$ above and solve the corresponding system to find the expected time $E(T)$ till absorption.
@@ -152,15 +189,17 @@ sequence <- c(1, 1, 1)
 expected_length <- c()
 
 for (i in 1:N) {
-    length <- 3
-    while (TRUE) {
-        sequence[length] <- sample(0:9, 1)
-        if (sequence[length] == TLN[3] && sequence[length - 1] == TLN[2] && sequence[length - 2] == TLN[1]) {
-            break
-        }
-        length <- length + 1
+  length <- 3
+  while (TRUE) {
+    sequence[length] <- sample(0:9, 1)
+    if (sequence[length] == TLN[3] &&
+      sequence[length - 1] == TLN[2] &&
+      sequence[length - 2] == TLN[1]) {
+      break
     }
-    expected_length[i] <- length
+    length <- length + 1
+  }
+  expected_length[i] <- length
 }
 
 print("The expected length E(T) till the first occurrence of the TLN is:")
@@ -203,5 +242,3 @@ N <- (z^2 * sigma^2) / epsilon^2
 print("The sample size N which guarantees that the absolute error of the estimate does not exceed 10 with confidence level of at least 95 percent is:")
 print(N)
 ```
-
-

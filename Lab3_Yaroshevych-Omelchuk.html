@@ -354,7 +354,7 @@ display: none;
 
 
 <blockquote>
-<p>Team members: Andrii Yaroshevych, OLeg Omelchuk</p>
+<p>Team members: Andrii Yaroshevych, Oleg Omelchuk</p>
 </blockquote>
 <div id="part-i-markov-chain" class="section level2">
 <h2>Part I: Markov Chain</h2>
@@ -399,7 +399,7 @@ for (i in seq_along(n)) {
 print(&quot;For n = 100, 200, 1000, the probability of the event that the TLN occurs in a random digit sequence is:&quot;)</code></pre>
 <pre><code>## [1] &quot;For n = 100, 200, 1000, the probability of the event that the TLN occurs in a random digit sequence is:&quot;</code></pre>
 <pre class="r"><code>print(p)</code></pre>
-<pre><code>## [1] 0.0918 0.1786 0.6361</code></pre>
+<pre><code>## [1] 0.0930 0.1825 0.6347</code></pre>
 </div>
 <div id="identify-the-markov-chain-structure-with-four-states-s0-s1-s2-s3-in-this-sequence-with-sk-denoting-the" class="section level4">
 <h4>2. Identify the Markov chain structure with four states S0, S1, S2,
@@ -488,11 +488,11 @@ N &lt;- ceiling(p * (1 - p) / (z^2 * 0.03^2))
 print(&quot;The sample size N which guarantees that the absolute error of the estimate is below 0.03 with confidence level of at least 95 percent is:&quot;)</code></pre>
 <pre><code>## [1] &quot;The sample size N which guarantees that the absolute error of the estimate is below 0.03 with confidence level of at least 95 percent is:&quot;</code></pre>
 <pre class="r"><code>print(N)</code></pre>
-<pre><code>## [1] 68</code></pre>
+<pre><code>## [1] 67</code></pre>
 <pre class="r"><code>print(&quot;The confidence interval for the probability is:&quot;)</code></pre>
 <pre><code>## [1] &quot;The confidence interval for the probability is:&quot;</code></pre>
 <pre class="r"><code>print(p + c(-1, 1) * z * sqrt(p * (1 - p) / N))</code></pre>
-<pre><code>## [1] 0.519507 0.748493</code></pre>
+<pre><code>## [1] 0.5222853 0.7525147</code></pre>
 </div>
 </div>
 <div id="problem-2.-in-the-setting-of-problem-1-assume-that-the-random-digit-generation-stops-at-the-first-occurrence-of-the-tln-i.e.-that-the-state-s4-of-the-markov-chain-is-now-absorbing.-in-this-problem-you-will-estimate-the-average-length-of-such-sequences-i.e.-the-average-time-till-absorption-in-the-markov-chain." class="section level3">
@@ -561,7 +561,7 @@ for (i in 1:N) {
 print(&quot;The expected length E(T) till the first occurrence of the TLN is:&quot;)</code></pre>
 <pre><code>## [1] &quot;The expected length E(T) till the first occurrence of the TLN is:&quot;</code></pre>
 <pre class="r"><code>print(mean(expected_length))</code></pre>
-<pre><code>## [1] 1057.587</code></pre>
+<pre><code>## [1] 997.906</code></pre>
 <p>We can see that the numerically expected length <span class="math inline">\(E(T)\)</span> till the first occurrence of the TLN
 is close to the result obtained theoretically.</p>
 </div>
@@ -599,7 +599,7 @@ N &lt;- (z^2 * sigma^2) / epsilon^2
 print(&quot;The sample size N which guarantees that the absolute error of the estimate does not exceed 10 with confidence level of at least 95 percent is:&quot;)</code></pre>
 <pre><code>## [1] &quot;The sample size N which guarantees that the absolute error of the estimate does not exceed 10 with confidence level of at least 95 percent is:&quot;</code></pre>
 <pre class="r"><code>print(N)</code></pre>
-<pre><code>## [1] 43712.11</code></pre>
+<pre><code>## [1] 36739.27</code></pre>
 </div>
 </div>
 </div>
@@ -667,9 +667,9 @@ rate_chi &lt;- rate_chi / m
 for (k in 1:3) {
     cat(&quot;The approximation of parameter lambda when alpha =&quot;, alphas[k], &quot;is:&quot;, rate_chi[k], &quot;\n&quot;)
 }</code></pre>
-<pre><code>## The approximation of parameter lambda when alpha = 0.1 is: 0.91 
-## The approximation of parameter lambda when alpha = 0.05 is: 0.958 
-## The approximation of parameter lambda when alpha = 0.01 is: 0.988</code></pre>
+<pre><code>## The approximation of parameter lambda when alpha = 0.1 is: 0.896 
+## The approximation of parameter lambda when alpha = 0.05 is: 0.95 
+## The approximation of parameter lambda when alpha = 0.01 is: 0.986</code></pre>
 </div>
 <div id="using-the-normal-approximation-mathscrnleftmu-sigma2right-for-overlinemathbfx-the-parameters-are-mutheta-and-sigma2s2-n-where-s2theta2-is-the-population-variance-i.e.-variance-of-the-original-distribution-mathscrelambda-.-in-other-words-we-form-the-z-statistics-zsqrtnoverlinemathbfx-theta-theta-and-use-the-fact-that-it-is-approximately-standard-normal-mathscrn01-to-find-that" class="section level4">
 <h4>2. Using the normal approximation <span class="math inline">\(\mathscr{N}\left(\mu, \sigma^{2}\right)\)</span>
@@ -715,9 +715,9 @@ rate_known_var &lt;- rate_known_var / m
 for (k in 1:3) {
     cat(&quot;The approximation of parameter lambda when alpha =&quot;, alphas[k], &quot;is:&quot;, rate_known_var[k], &quot;\n&quot;)
 }</code></pre>
-<pre><code>## The approximation of parameter lambda when alpha = 0.1 is: 0.912 
-## The approximation of parameter lambda when alpha = 0.05 is: 0.958 
-## The approximation of parameter lambda when alpha = 0.01 is: 0.99</code></pre>
+<pre><code>## The approximation of parameter lambda when alpha = 0.1 is: 0.896 
+## The approximation of parameter lambda when alpha = 0.05 is: 0.95 
+## The approximation of parameter lambda when alpha = 0.01 is: 0.988</code></pre>
 </div>
 <div id="the-confidence-interval-constructed-above-uses-the-unknown-variance-s2theta2-and-is-of-little-use-in-practice.-instead-we-can-solve-the-double-inequality" class="section level4">
 <h4>3. The confidence interval constructed above uses the unknown
@@ -752,16 +752,16 @@ rate_unknown_var &lt;- rate_unknown_var / m
 for (k in 1:3) {
     cat(&quot;The approximation of parameter lambda when alpha =&quot;, alphas[k], &quot;is:&quot;, rate_unknown_var[k], &quot;\n&quot;)
 }</code></pre>
-<pre><code>## The approximation of parameter lambda when alpha = 0.1 is: 0.906 
-## The approximation of parameter lambda when alpha = 0.05 is: 0.96 
-## The approximation of parameter lambda when alpha = 0.01 is: 0.992</code></pre>
+<pre><code>## The approximation of parameter lambda when alpha = 0.1 is: 0.892 
+## The approximation of parameter lambda when alpha = 0.05 is: 0.944 
+## The approximation of parameter lambda when alpha = 0.01 is: 0.984</code></pre>
 </div>
 <div id="b.-compare-their-precision-lengths." class="section level4">
 <h4>B. Compare their precision (lengths).</h4>
 <pre class="r"><code>print(&quot;The avarage length using chi-square distribution:&quot;)</code></pre>
 <pre><code>## [1] &quot;The avarage length using chi-square distribution:&quot;</code></pre>
 <pre class="r"><code>print(mean(lengths_chi))</code></pre>
-<pre><code>## [1] 1.303012</code></pre>
+<pre><code>## [1] 1.303624</code></pre>
 <pre class="r"><code>print(&quot;The avarage length using normal approximation with known variance:&quot;)</code></pre>
 <pre><code>## [1] &quot;The avarage length using normal approximation with known variance:&quot;</code></pre>
 <pre class="r"><code>print(mean(lengths_known_var))</code></pre>
@@ -769,7 +769,7 @@ for (k in 1:3) {
 <pre class="r"><code>print(&quot;The avarage length using normal approximation with unknown variance:&quot;)</code></pre>
 <pre><code>## [1] &quot;The avarage length using normal approximation with unknown variance:&quot;</code></pre>
 <pre class="r"><code>print(mean(lengths_unknown_var))</code></pre>
-<pre><code>## [1] 0.0130429</code></pre>
+<pre><code>## [1] 0.01302515</code></pre>
 </div>
 <div id="c.-give-your-recommendation-as-to-which-of-the-three-methods-is-the-best-one-and-explain-your-decision" class="section level4">
 <h4>C. Give your recommendation as to which of the three methods is the
@@ -823,9 +823,9 @@ rate_chi &lt;- rate_chi / m
 for (k in 1:3) {
     cat(&quot;The approximation of parameter lambda when alpha =&quot;, alphas[k], &quot;is:&quot;, rate_chi[k], &quot;\n&quot;)
 }</code></pre>
-<pre><code>## The approximation of parameter lambda when alpha = 0.1 is: 0.892 
-## The approximation of parameter lambda when alpha = 0.05 is: 0.946 
-## The approximation of parameter lambda when alpha = 0.01 is: 0.992</code></pre>
+<pre><code>## The approximation of parameter lambda when alpha = 0.1 is: 0.884 
+## The approximation of parameter lambda when alpha = 0.05 is: 0.932 
+## The approximation of parameter lambda when alpha = 0.01 is: 0.988</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li>Approximating using normal approximation with known variance.</li>
 </ol>
@@ -895,7 +895,7 @@ for (k in 1:3) {
 <pre class="r"><code>print(&quot;The avarage length using chi-square distribution:&quot;)</code></pre>
 <pre><code>## [1] &quot;The avarage length using chi-square distribution:&quot;</code></pre>
 <pre class="r"><code>print(mean(lengths_chi))</code></pre>
-<pre><code>## [1] 0.04115506</code></pre>
+<pre><code>## [1] 0.04115955</code></pre>
 <pre class="r"><code>print(&quot;The avarage length using normal approximation with known variance:&quot;)</code></pre>
 <pre><code>## [1] &quot;The avarage length using normal approximation with known variance:&quot;</code></pre>
 <pre class="r"><code>print(mean(lengths_known_var))</code></pre>
@@ -903,7 +903,7 @@ for (k in 1:3) {
 <pre class="r"><code>print(&quot;The avarage length using normal approximation with unknown variance:&quot;)</code></pre>
 <pre><code>## [1] &quot;The avarage length using normal approximation with unknown variance:&quot;</code></pre>
 <pre class="r"><code>print(mean(lengths_unknown_var))</code></pre>
-<pre><code>## [1] 1.303155</code></pre>
+<pre><code>## [1] 1.302071</code></pre>
 </div>
 <div id="c.-give-your-recommendation-as-to-which-of-the-three-methods-is-the-best-one-and-explain-your-decision." class="section level4">
 <h4>C. Give your recommendation as to which of the three methods is the

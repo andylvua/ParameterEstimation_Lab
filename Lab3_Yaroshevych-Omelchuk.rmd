@@ -6,7 +6,7 @@ markdown:
 wrap: 72
 ---
 
-> Team members: Andrii Yaroshevych, OLeg Omelchuk
+> Team members: Andrii Yaroshevych, Oleg Omelchuk
 
 ## Part I: Markov Chain
 

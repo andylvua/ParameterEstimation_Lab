@@ -1,5 +1,5 @@
 ## Problem 3.
-#### The expected value of the exponential distribution E (λ) is 1/λ, so that a good point estimate of the parameter θ := 1/λ is the sample mean x. Confidence interval for θ can be formed in several different ways
+#### The expected value of the poisson distribution E (λ) is λ, so that a good point estimate of the parameter θ := λ is the sample mean x. Confidence interval for θ can be formed in several different ways
 
 ```{r}
 library(crayon)
@@ -12,23 +12,20 @@ n <- 1000
 m <- 500
 alphas <- c(0.1, 0.05, 0.01)
 theta <- id / 10
-lambda <- 1 / theta
-datas <- matrix(rexp(n * m, rate = lambda), nrow = n)
+lambda <- theta
+datas <- matrix(rpois(n * m, lambda = lambda), nrow = n)
 
 
 alphas <- c(0.1, 0.05, 0.01)
 ```
 
-### A. Verify that the confidence intervals of level 1 − a constructed via (1)–(4) above contain the parameter θ = 1/λ approx. 100(1 − α)% of times.
+### A. Verify that the confidence intervals of level 1 − a constructed via (1)–(4) above contain the parameter θ = λ approx. 100(1 − α)% of times.
 
 #### (1) Approximating using chi-square distribution.
 
-$$\mathcal{E}(\lambda) \sim \mathcal{G}(1,\ 1/{\lambda})$$
-$$\sum^{iid}\mathcal{G}(1,\ 1/{\lambda}) \sim \mathcal{G}(n,\ 1/{\lambda})\sim 0.5\chi^2_{2n}$$
-
-The $(1-\alpha)100$ confidence interval for $\lambda$ then is:
-$$\left[\frac{\chi^2(2n,\ \alpha/2)}{2n\overline{x}},\ \frac{\chi^2(2n,\ 1-\alpha/2)}{2n\overline{x}}\right]$$
-$\chi^2(v,\ p)$ is the p'th quantile of chi-square distribution with v degrees of freedom
+The $(1-\alpha)100$ confidence interval for $\lambda$ is:
+$$\left[\frac{\chi^2(2n\overline{x},\ \alpha/2)}{2n},\ \frac{\chi^2(2n\overline{x},\ 1-\alpha/2)}{2n}\right]$$
+$\chi^2(v,\ p)$ is the p'th quantile of chi-square distribution with v degrees of freedom.
 
 ```{r}
 rate_chi <- c(0, 0, 0)
@@ -36,8 +33,8 @@ lengths_chi <- c()
 for (k in 1:3) {
     for (i in 1:m) {
         mean <- mean(datas[, i])
-        left <- qchisq(alphas[k] / 2, df = 2 * n) / (2 * mean * n)
-        right <- qchisq(1 - alphas[k] / 2, df = 2 * n) / (2 * mean * n)
+        left <- qchisq(alphas[k] / 2, df = 2 * n * mean) / (2 * n)
+        right <- qchisq(1 - alphas[k] / 2, df = 2 * n * mean) / (2 * n)
 
         lengths_chi <- append(lengths_chi, right - left)
         if (left <= lambda & lambda <= right) {
@@ -52,14 +49,14 @@ for (k in 1:3) {
 ```
 
 #### (2) Approximating using normal approximation with known variance.
-$$ \mu=\theta\ \ \ \ \sigma^2 = \theta^2 $$
-$$ X\sim\mathcal{N}(\theta,\ \theta^2)$$
+$$ \mu=\theta\ \ \ \ \sigma^2 = \theta $$
+$$ X\sim\mathcal{N}(\theta,\ \theta)$$
 
 The $(1-\alpha)$ confidence level for $\lambda$ then is:
-$$\left[\overline{X} - \frac{\sigma}{\sqrt{n}}Z_{1-\alpha/2},\overline{X} + \frac{\sigma}{\sqrt{n}}Z_{1-\alpha/2}\right]$$
+$$\left[\overline{X} - \sigma Z_{1-\alpha/2},\overline{X} + \sigma Z_{1-\alpha/2}\right]$$
 
 ```{r}
-sd <- theta
+sd <- sqrt(theta)
 
 rate_known_var <- c(0, 0, 0)
 lengths_known_var <- c()
@@ -67,7 +64,7 @@ for (k in 1:3) {
     for (i in 1:m) {
         mean <- mean(datas[, i])
         z <- qnorm(1 - alphas[k] / 2, mean = 0, sd = 1)
-        epsilon <- sd / sqrt(n) * z
+        epsilon <- sd * z
         left <- mean - epsilon
         right <- mean + epsilon
 
@@ -94,7 +91,7 @@ for (k in 1:3) {
         mean <- mean(datas[, i])
         sd <- sd(datas[, i])
         z <- qnorm(1 - alphas[k] / 2, mean = 0, sd = 1)
-        epsilon <- sd / sqrt(n) * z
+        epsilon <- sd * z
 
         left <- mean - epsilon
         right <- mean + epsilon
@@ -118,5 +115,5 @@ cat("The avarage length using normal approximation with unknown variance:", mean
 ```
 
 ### C. Compare their precision (lengths).
-The best method is obviously the normal approximation with unknown variance, as it can be widely used because of no need to have the population's variance.
-Chi-squared distribution approximation is worse, because it returns a very wide interval for theta, when normal approximation is very precise.
+In Poisson distribution case, the best option is chi-squared distribution extimation, as it gives small interval, therefore giving us a very valuable information.
+Other two gave us very high precision, but big intervals, so they are not optimal to use in Poisson distribution case.

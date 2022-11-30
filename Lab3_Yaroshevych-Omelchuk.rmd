@@ -242,3 +242,269 @@ N <- (z^2 * sigma^2) / epsilon^2
 print("The sample size N which guarantees that the absolute error of the estimate does not exceed 10 with confidence level of at least 95 percent is:")
 print(N)
 ```
+
+## Part 2. Parameter estimation
+
+> Aim: In problems 3 and 4, you will have to verify that the interval estimates produced by the known rules indeed
+contain the parameter with probability equal to the confidence level.
+
+### Problem 3. The expected value of the exponential distribution $\mathcal E(\lambda)$ is $\frac{1}{\lambda}$, so that a good point estimate of the parameter $\theta = \frac{1}{\lambda}$ is the sample mean $\overline{x}$. Confidence interval for $\theta$ can be formed in several ways
+
+Necessary libraries:
+```{r}
+library(crayon)
+```
+
+#### 1. Using the exact distribution of the statistics $2\lambda n \overline{X}$ (show it is ${\chi_2n}^2$ and then use quantiles of the latter to get the interval endpoints)
+
+```{r}
+id <- 1
+
+n <- 1000
+m <- 500
+alphas <- c(0.1, 0.05, 0.01)
+theta <- id / 10
+lambda <- 1 / theta
+datas <- matrix(rexp(n * m, rate = lambda), nrow = n)
+
+
+alphas <- c(0.1, 0.05, 0.01)
+```
+
+#### A. Verify that the confidence intervals of level $1 − a$ constructed via (1)–(4) above contain the parameter $\theta = \frac{1}{\lambda}$ approx. $100(1 − α)\%$ of times.
+
+1. Approximating using chi-square distribution.
+
+$$\mathcal{E}(\lambda) \sim \mathcal{G}(1,\ 1/{\lambda})$$
+$$\sum^{iid}\mathcal{G}(1,\ 1/{\lambda}) \sim \mathcal{G}(n,\ 1/{\lambda})\sim 0.5\chi^2_{2n}$$
+
+The $(1-\alpha)100$ confidence interval for $\lambda$ then is:
+$$\left[\frac{\chi^2(2n,\ \alpha/2)}{2n\overline{x}},\ \frac{\chi^2(2n,\ 1-\alpha/2)}{2n\overline{x}}\right]$$
+$\chi^2(v,\ p)$ is the p'th quantile of chi-square distribution with v degrees of freedom
+
+```{r}
+rate_chi <- c(0, 0, 0)
+lengths_chi <- c()
+for (k in 1:3) {
+    for (i in 1:m) {
+        mean <- mean(datas[, i])
+        left <- qchisq(alphas[k] / 2, df = 2 * n) / (2 * mean * n)
+        right <- qchisq(1 - alphas[k] / 2, df = 2 * n) / (2 * mean * n)
+
+        lengths_chi <- append(lengths_chi, right - left)
+        if (left <= lambda & lambda <= right) {
+            rate_chi[k] <- rate_chi[k] + 1
+        }
+    }
+}
+rate_chi <- rate_chi / m
+for (k in 1:3) {
+    cat("The approximation of parameter lambda when alpha =", alphas[k], "is:", rate_chi[k], "\n")
+}
+```
+
+#### 2. Using the normal approximation $\mathscr{N}\left(\mu, \sigma^{2}\right)$ for $\overline{\mathbf{X}}$; the parameters are $\mu=\theta$ and $\sigma^{2}=s^{2} / n$, where $s^{2}=\theta^{2}$ is the population variance (i.e., variance of the original distribution $\mathscr{E}(\lambda)$ ). In other words, we form the $Z$-statistics $Z:=\sqrt{n}(\overline{\mathbf{X}}-\theta) / \theta$ and use the fact that it is approximately standard normal $\mathscr{N}(0,1)$ to find that
+
+$$
+\mathrm{P}\left(|\theta-\overline{\mathbf{X}}| \leq z_{\beta} \theta / \sqrt{n}\right)=\mathrm{P}\left(|Z| \leq z_{\beta}\right)=2 \beta-1 .
+$$
+
+in other words, $\theta$ is with probability $2 \beta-1$ within $\overline{\mathbf{X}} \pm z_{\beta} \theta / \sqrt{n}$.
+$$ \mu=\theta\ \ \ \ \sigma^2 = \theta^2 $$
+$$ X\sim\mathcal{N}(\theta,\ \theta^2)$$
+
+The $(1-\alpha)$ confidence level for $\lambda$ then is:
+$$\left[\overline{X} - \frac{\sigma}{\sqrt{n}}Z_{1-\alpha/2},\overline{X} + \frac{\sigma}{\sqrt{n}}Z_{1-\alpha/2}\right]$$
+
+```{r}
+sd <- theta
+
+rate_known_var <- c(0, 0, 0)
+lengths_known_var <- c()
+for (k in 1:3) {
+    for (i in 1:m) {
+        mean <- mean(datas[, i])
+        z <- qnorm(1 - alphas[k] / 2, mean = 0, sd = 1)
+        epsilon <- sd / sqrt(n) * z
+        left <- mean - epsilon
+        right <- mean + epsilon
+
+        lengths_known_var <- append(lengths_known_var, right - left)
+        if (left <= theta & theta <= right) {
+            rate_known_var[k] <- rate_known_var[k] + 1
+        }
+    }
+}
+rate_known_var <- rate_known_var / m
+for (k in 1:3) {
+    cat("The approximation of parameter lambda when alpha =", alphas[k], "is:", rate_known_var[k], "\n")
+}
+```
+
+#### 3. The confidence interval constructed above uses the unknown variance $s^{2}=\theta^{2}$ and is of little use in practice. Instead, we can solve the double inequality
+
+$$
+|\theta-\overline{\mathbf{X}}| \leq z_{\beta} \theta / \sqrt{n}
+$$
+
+for $\theta$ and get another confidence interval of confidence level $2 \beta-1$ that is independent of the unknown parameter.
+
+Basically doing same steps as in (2), but now we are calculating standard deviation from our data.
+
+```{r}
+rate_unknown_var <- c(0, 0, 0)
+lengths_unknown_var <- c()
+for (k in 1:3) {
+    for (i in 1:m) {
+        mean <- mean(datas[, i])
+        sd <- sd(datas[, i])
+        z <- qnorm(1 - alphas[k] / 2, mean = 0, sd = 1)
+        epsilon <- sd / sqrt(n) * z
+
+        left <- mean - epsilon
+        right <- mean + epsilon
+        lengths_unknown_var <- append(lengths_unknown_var, right - left)
+        if (left <= theta & theta <= right) {
+            rate_unknown_var[k] <- rate_unknown_var[k] + 1
+        }
+    }
+}
+rate_unknown_var <- rate_unknown_var / m
+for (k in 1:3) {
+    cat("The approximation of parameter lambda when alpha =", alphas[k], "is:", rate_unknown_var[k], "\n")
+}
+```
+
+#### B. Compare their precision (lengths).
+```{r}
+print("The avarage length using chi-square distribution:")
+print(mean(lengths_chi))
+print("The avarage length using normal approximation with known variance:")
+print(mean(lengths_known_var))
+print("The avarage length using normal approximation with unknown variance:")
+print(mean(lengths_unknown_var))
+```
+
+#### C. Give your recommendation as to which of the three methods is the best one and explain your decision
+
+The best method is obviously the normal approximation with unknown variance, as it can be widely used because of no need to have the population's variance.
+
+Chi-squared distribution approximation is worse, because it returns a very wide interval for theta, when normal approximation is very precise.
+
+
+### Problem 4. Repeat parts (2)-(4) of Problem 3 (with corresponding amendments) for a Poisson distribution $\mathscr{P}(\theta)$.
+
+Task and Directions remain he same. In other words, you have to check that confidence intervals constructed there contain the parameter $\theta$ with prescribed probability.
+
+```{r}
+lambda <- theta
+datas <- matrix(rpois(n * m, lambda = lambda), nrow = n)
+
+alphas <- c(0.1, 0.05, 0.01)
+```
+
+#### A. Verify that the confidence intervals of level $1 − a$ constructed via (1)–(4) above contain the parameter $\theta = \frac{1}{\lambda}$ approx. $100(1 − α)\%$ of times.
+
+1. Approximating using chi-square distribution.
+
+The $(1-\alpha)100$ confidence interval for $\lambda$ is:
+$$\left[\frac{\chi^2(2n\overline{x},\ \alpha/2)}{2n},\ \frac{\chi^2(2n\overline{x},\ 1-\alpha/2)}{2n}\right]$$
+$\chi^2(v,\ p)$ is the p'th quantile of chi-square distribution with v degrees of freedom.
+
+```{r}
+rate_chi <- c(0, 0, 0)
+lengths_chi <- c()
+for (k in 1:3) {
+    for (i in 1:m) {
+        mean <- mean(datas[, i])
+        left <- qchisq(alphas[k] / 2, df = 2 * n * mean) / (2 * n)
+        right <- qchisq(1 - alphas[k] / 2, df = 2 * n * mean) / (2 * n)
+
+        lengths_chi <- append(lengths_chi, right - left)
+        if (left <= lambda & lambda <= right) {
+            rate_chi[k] <- rate_chi[k] + 1
+        }
+    }
+}
+rate_chi <- rate_chi / m
+for (k in 1:3) {
+    cat("The approximation of parameter lambda when alpha =", alphas[k], "is:", rate_chi[k], "\n")
+}
+```
+
+2. Approximating using normal approximation with known variance.
+
+$$ \mu=\theta\ \ \ \ \sigma^2 = \theta $$
+$$ X\sim\mathcal{N}(\theta,\ \theta)$$
+
+The $(1-\alpha)$ confidence level for $\lambda$ then is:
+$$\left[\overline{X} - \sigma Z_{1-\alpha/2},\overline{X} + \sigma Z_{1-\alpha/2}\right]$$
+
+```{r}
+sd <- sqrt(theta)
+
+rate_known_var <- c(0, 0, 0)
+lengths_known_var <- c()
+for (k in 1:3) {
+    for (i in 1:m) {
+        mean <- mean(datas[, i])
+        z <- qnorm(1 - alphas[k] / 2, mean = 0, sd = 1)
+        epsilon <- sd * z
+        left <- mean - epsilon
+        right <- mean + epsilon
+
+        lengths_known_var <- append(lengths_known_var, right - left)
+        if (left <= theta & theta <= right) {
+            rate_known_var[k] <- rate_known_var[k] + 1
+        }
+    }
+}
+rate_known_var <- rate_known_var / m
+for (k in 1:3) {
+    cat("The approximation of parameter lambda when alpha =", alphas[k], "is:", rate_known_var[k], "\n")
+}
+```
+
+3. Approximating using normal approximation with unknown variance.
+
+Basically doing same steps as in (2), but now we are calculating standard deviation from our data.
+
+```{r}
+rate_unknown_var <- c(0, 0, 0)
+lengths_unknown_var <- c()
+for (k in 1:3) {
+    for (i in 1:m) {
+        mean <- mean(datas[, i])
+        sd <- sd(datas[, i])
+        z <- qnorm(1 - alphas[k] / 2, mean = 0, sd = 1)
+        epsilon <- sd * z
+
+        left <- mean - epsilon
+        right <- mean + epsilon
+        lengths_unknown_var <- append(lengths_unknown_var, right - left)
+        if (left <= theta & theta <= right) {
+            rate_unknown_var[k] <- rate_unknown_var[k] + 1
+        }
+    }
+}
+rate_unknown_var <- rate_unknown_var / m
+for (k in 1:3) {
+    cat("The approximation of parameter lambda when alpha =", alphas[k], "is:", rate_unknown_var[k], "\n")
+}
+```
+
+#### B. Compare their precision (lengths).
+```{r}
+print("The avarage length using chi-square distribution:")
+print(mean(lengths_chi))
+print("The avarage length using normal approximation with known variance:")
+print(mean(lengths_known_var))
+print("The avarage length using normal approximation with unknown variance:")
+print(mean(lengths_unknown_var))
+```
+
+#### C. Give your recommendation as to which of the three methods is the best one and explain your decision.
+
+In Poisson distribution case, the best option is chi-squared distribution estimation, as it gives small interval, therefore giving us a very valuable information.
+
+Other two gave us very high precision, but big intervals, so they are not optimal to use in Poisson distribution case.

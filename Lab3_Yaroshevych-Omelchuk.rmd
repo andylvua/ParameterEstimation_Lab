@@ -2,6 +2,8 @@
 title: "Lab 3"
 output: html_document
 editor_options:
+  markdown: 
+    wrap: 72
 markdown:
 wrap: 72
 ---
@@ -10,9 +12,11 @@ wrap: 72
 
 ## Part I: Markov Chain
 
-Determine the TLN (that stands for the team lucky number) as a three-digit number which is the team id number
-with an extra zero added from the left; e.g., TLN is 028 for team id number 28. In this part, you will study the questions
-about chances to see the TLN in random sequences of digits.
+Determine the TLN (that stands for the team lucky number) as a
+three-digit number which is the team id number with an extra zero added
+from the left; e.g., TLN is 028 for team id number 28. In this part, you
+will study the questions about chances to see the TLN in random
+sequences of digits.
 
 ```{r}
 ID <- 1
@@ -22,12 +26,14 @@ TLN <- paste0("00", ID)
 
 ### Problem 1. In the first part, we will estimate the probability that a random digit sequence of length n contains the TLN (consider the cases n = 100, n = 200, n = 1000).
 
-#### 1.  Estimate numerically the probability $\hat{p_n}$ of the event that your TLN occurs in a random digit sequence $d_1 \ldots d_n$ of length n.
+#### 1. Estimate numerically the probability $\hat{p_n}$ of the event that your TLN occurs in a random digit sequence $d_1 \ldots d_n$ of length n.
 
-> Hint: Such a sequence can be generated with R command `sample(0:9, n, replace=T)`. You will need to generate
-a sample of such sequences of sufficiently large size $N$.
+> Hint: Such a sequence can be generated with R command
+> `sample(0:9, n, replace=T)`. You will need to generate a sample of
+> such sequences of sufficiently large size $N$.
 
-The unbiased estimator of the probability is the proportion of sequences that contain the TLN.
+The unbiased estimator of the probability is the proportion of sequences
+that contain the TLN.
 
 $$
 \hat{p_n} = \frac{1}{N} \sum_{i=1}^N I(d_i \ldots d_n \text{ contains TLN})
@@ -50,16 +56,18 @@ print(p)
 ```
 
 #### 2. Identify the Markov chain structure with four states S0, S1, S2, S3 in this sequence with Sk denoting the
-number of correct last digits (eg., for the team id number 028 these states will be S0 =“*”, S1 =“0”, S2 =“02”,
-S3 =“028”). Determine the transition probabilities matrix P and find the limiting probability pn for the state
-“028”. Compare with the result obtained in part 1.
+
+number of correct last digits (eg., for the team id number 028 these
+states will be S0 ="\*", S1 ="0", S2 ="02", S3 ="028"). Determine the
+transition probabilities matrix P and find the limiting probability pn
+for the state "028". Compare with the result obtained in part 1.
 
 We define the following states:
 
-- S0: "*"
-- S1: "0"
-- S2: "00"
-- S3: "001"
+-   S0: "\*"
+-   S1: "0"
+-   S2: "00"
+-   S3: "001"
 
 The transition matrix is:
 
@@ -99,11 +107,14 @@ print("The limiting probability by power method pn for the state “028” is:")
 print(calculate_by_power_method(P, 100)[4])
 ```
 
-We can see that limiting probabilities computed by eigenvector and power method coincide with the result obtained in part 1.
+We can see that limiting probabilities computed by eigenvector and power
+method coincide with the result obtained in part 1.
 
 #### 3. Determine approximately the sample size $N$ which guarantees that the absolute error $\lvert\hat{p_n} - p_n\vert$ of the estimate $\hat{p_n}$ is below 0.03 with confidence level of at least 95 percent. Rerun the experiments for n = 1000 with the determined size $N$ to illustrate the confidence interval and confidence level.
 
-The unbiased estimator of the probability that a random digit sequence of length n contains the TLN is the proportion of sequences that contain the TLN.
+The unbiased estimator of the probability that a random digit sequence
+of length n contains the TLN is the proportion of sequences that contain
+the TLN.
 
 $$
 {p_n} = \frac{1}{N} \sum_{i=1}^N I(d_i \ldots d_n \text{ contains TLN})
@@ -115,7 +126,8 @@ $$
 \text{Var}({p_n}) = \frac{\hat{p_n}(1 - \hat{p_n})}{N}
 $$
 
-Thus, the absolute error $\lvert\hat{p_n} - p_n\rvert$ of the estimate $\hat{p_n}$ can be estimated as:
+Thus, the absolute error $\lvert\hat{p_n} - p_n\rvert$ of the estimate
+$\hat{p_n}$ can be estimated as:
 
 $$
 \lvert\hat{p_n} - p_n\rvert = \sqrt{\frac{\hat{p_n}(1 - \hat{p_n})}{N}}
@@ -140,6 +152,7 @@ print(N)
 print("The confidence interval for the probability is:")
 print(p + c(-1, 1) * z * sqrt(p * (1 - p) / N))
 ```
+
 ### Problem 2. In the setting of Problem 1, assume that the random digit generation stops at the first occurrence of the TLN (i.e., that the state S4 of the Markov chain is now absorbing). In this problem, you will estimate the average length of such sequences (i.e., the average time till absorption in the Markov chain).
 
 #### 1. Make necessary amendments to the transition probabilities matrix $P$ above and solve the corresponding system to find the expected time $E(T)$ till absorption.
@@ -179,7 +192,8 @@ Thus, $E(T) = \mu_1 = 1000$.
 
 #### 2. Estimate numerically the expected length $E(T)$ till the first occurrence of the TLN by running a sufficiently large number $N$ of experiments.
 
-Here, the unbiased estimator of $E(T)$ is the average of the lengths of the first occurrences of the TLN in the random digit sequences.
+Here, the unbiased estimator of $E(T)$ is the average of the lengths of
+the first occurrences of the TLN in the random digit sequences.
 
 $$
 \hat{\theta} = \overline{T} = \frac{1}{N}\sum_{i=1}^{N}T_i
@@ -208,12 +222,13 @@ print("The expected length E(T) till the first occurrence of the TLN is:")
 print(mean(expected_length))
 ```
 
-We can see that the numerically expected length $E(T)$ till the first occurrence of the TLN is close to the result obtained theoretically.
+We can see that the numerically expected length $E(T)$ till the first
+occurrence of the TLN is close to the result obtained theoretically.
 
 #### 3. Find the sample size $N$ which guarantees that the absolute error $\lvert\hat{\theta} - \theta\rvert$ of the estimate does not exceed 10 with confidence level of at least 95 percent.
 
-> Hint: use Chebyshev inequality and estimate the standard deviation of $T$ by the standard error of the sample
-$T_1, \ldots, T_N$.
+> Hint: use Chebyshev inequality and estimate the standard deviation of
+> $T$ by the standard error of the sample $T_1, \ldots, T_N$.
 
 The standard error of the sample $T_1, \ldots, T_N$ is:
 
@@ -247,12 +262,14 @@ print(N)
 
 ## Part 2. Parameter estimation
 
-> Aim: In problems 3 and 4, you will have to verify that the interval estimates produced by the known rules indeed
-contain the parameter with probability equal to the confidence level.
+> Aim: In problems 3 and 4, you will have to verify that the interval
+> estimates produced by the known rules indeed contain the parameter
+> with probability equal to the confidence level.
 
 ### Problem 3. The expected value of the exponential distribution $\mathcal E(\lambda)$ is $\frac{1}{\lambda}$, so that a good point estimate of the parameter $\theta = \frac{1}{\lambda}$ is the sample mean $\overline{x}$. Confidence interval for $\theta$ can be formed in several ways
 
 Necessary libraries:
+
 ```{r}
 library(crayon)
 ```
@@ -273,16 +290,17 @@ datas <- matrix(rexp(n * m, rate = lambda), nrow = n)
 alphas <- c(0.1, 0.05, 0.01)
 ```
 
-#### A. Verify that the confidence intervals of level $1 − a$ constructed via (1)–(4) above contain the parameter $\theta = \frac{1}{\lambda}$ approx. $100(1 − α)\%$ of times.
+#### A. Verify that the confidence intervals of level $1 − a$ constructed via (1)--(4) above contain the parameter $\theta = \frac{1}{\lambda}$ approx. $100(1 − α)\%$ of times.
 
-1. Approximating using chi-square distribution.
+1.  Approximating using chi-square distribution.
 
 $$\mathcal{E}(\lambda) \sim \mathcal{G}(1,\ 1/{\lambda})$$
 $$\sum^{iid}\mathcal{G}(1,\ 1/{\lambda}) \sim \mathcal{G}(n,\ 1/{\lambda})\sim 0.5\chi^2_{2n}$$
 
 The $(1-\alpha)100$ confidence interval for $\lambda$ then is:
 $$\left[\frac{\chi^2(2n,\ \alpha/2)}{2n\overline{x}},\ \frac{\chi^2(2n,\ 1-\alpha/2)}{2n\overline{x}}\right]$$
-$\chi^2(v,\ p)$ is the p'th quantile of chi-square distribution with v degrees of freedom
+$\chi^2(v,\ p)$ is the p'th quantile of chi-square distribution with v
+degrees of freedom
 
 ```{r}
 rate_chi <- c(0, 0, 0)
@@ -311,7 +329,8 @@ $$
 \mathrm{P}\left(|\theta-\overline{\mathbf{X}}| \leq z_{\beta} \theta / \sqrt{n}\right)=\mathrm{P}\left(|Z| \leq z_{\beta}\right)=2 \beta-1 .
 $$
 
-in other words, $\theta$ is with probability $2 \beta-1$ within $\overline{\mathbf{X}} \pm z_{\beta} \theta / \sqrt{n}$.
+in other words, $\theta$ is with probability $2 \beta-1$ within
+$\overline{\mathbf{X}} \pm z_{\beta} \theta / \sqrt{n}$.
 $$ \mu=\theta\ \ \ \ \sigma^2 = \theta^2 $$
 $$ X\sim\mathcal{N}(\theta,\ \theta^2)$$
 
@@ -349,9 +368,11 @@ $$
 |\theta-\overline{\mathbf{X}}| \leq z_{\beta} \theta / \sqrt{n}
 $$
 
-for $\theta$ and get another confidence interval of confidence level $2 \beta-1$ that is independent of the unknown parameter.
+for $\theta$ and get another confidence interval of confidence level
+$2 \beta-1$ that is independent of the unknown parameter.
 
-Basically doing same steps as in (2), but now we are calculating standard deviation from our data.
+Basically doing same steps as in (2), but now we are calculating
+standard deviation from our data.
 
 ```{r}
 rate_unknown_var <- c(0, 0, 0)
@@ -378,6 +399,7 @@ for (k in 1:3) {
 ```
 
 #### B. Compare their precision (lengths).
+
 ```{r}
 print("The avarage length using chi-square distribution:")
 print(mean(lengths_chi))
@@ -389,14 +411,18 @@ print(mean(lengths_unknown_var))
 
 #### C. Give your recommendation as to which of the three methods is the best one and explain your decision
 
-The best method is obviously the normal approximation with unknown variance, as it can be widely used because of no need to have the population's variance.
+The best method is obviously the normal approximation with unknown
+variance, as it can be widely used because of no need to have the
+population's variance.
 
-Chi-squared distribution approximation is worse, because it returns a very wide interval for theta, when normal approximation is very precise.
-
+Chi-squared distribution approximation is worse, because it returns a
+very wide interval for theta, when normal approximation is very precise.
 
 ### Problem 4. Repeat parts (2)-(4) of Problem 3 (with corresponding amendments) for a Poisson distribution $\mathscr{P}(\theta)$.
 
-Task and Directions remain he same. In other words, you have to check that confidence intervals constructed there contain the parameter $\theta$ with prescribed probability.
+Task and Directions remain he same. In other words, you have to check
+that confidence intervals constructed there contain the parameter
+$\theta$ with prescribed probability.
 
 ```{r}
 lambda <- theta
@@ -405,9 +431,9 @@ datas <- matrix(rpois(n * m, lambda = lambda), nrow = n)
 alphas <- c(0.1, 0.05, 0.01)
 ```
 
-#### A. Verify that the confidence intervals of level $1 − a$ constructed via (1)–(4) above contain the parameter $\theta = \frac{1}{\lambda}$ approx. $100(1 − α)\%$ of times.
+#### A. Verify that the confidence intervals of level $1 − a$ constructed via (2)--(4) above contain the parameter $\theta = \frac{1}{\lambda}$ approx. $100(1 − α)\%$ of times.
 
-2. Approximating using normal approximation with known variance.
+2.  Approximating using normal approximation with known variance.
 
 $$ \mu=\theta\ \ \ \ \sigma^2 = \theta $$
 $$ X\sim\mathcal{N}(\theta,\ \theta)$$
@@ -440,9 +466,10 @@ for (k in 1:3) {
 }
 ```
 
-3. Approximating using normal approximation with unknown variance.
+3.  Approximating using normal approximation with unknown variance.
 
-Basically doing same steps as in (2), but now we are calculating standard deviation from our data.
+Basically doing same steps as in (2), but now we are calculating
+standard deviation from our data.
 
 ```{r}
 rate_unknown_var <- c(0, 0, 0)
@@ -469,6 +496,7 @@ for (k in 1:3) {
 ```
 
 #### B. Compare their precision (lengths).
+
 ```{r}
 print("The avarage length using chi-square distribution:")
 print(mean(lengths_chi))
@@ -480,6 +508,9 @@ print(mean(lengths_unknown_var))
 
 #### C. Give your recommendation as to which of the three methods is the best one and explain your decision.
 
-In Poisson distribution case, the best option is chi-squared distribution estimation, as it gives small interval, therefore giving us a very valuable information.
+The best method is obviously the normal approximation with unknown
+variance, as it can be widely used because of no need to have the
+population's variance.
 
-Other two gave us very high precision, but big intervals, so they are not optimal to use in Poisson distribution case.
+Other two gave us very high precision, but big intervals, so they are
+not optimal to use in Poisson distribution case.

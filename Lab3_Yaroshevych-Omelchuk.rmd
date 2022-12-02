@@ -42,7 +42,7 @@ p <- c()
 is_sebseq <- function(x, y) grepl(paste(y, collapse = ""), paste(x, collapse = ""))
 
 for (i in seq_along(n)) {
-  p[i] <- mean(apply(matrix(sample(0:9, n[i] * N, replace = T), nrow = N), 1, is_sebseq, TLN))
+    p[i] <- mean(apply(matrix(sample(0:9, n[i] * N, replace = T), nrow = N), 1, is_sebseq, TLN))
 }
 
 print("For n = 100, 200, 1000, the probability of the event that the TLN occurs in a random digit sequence is:")
@@ -73,21 +73,23 @@ P = \begin{pmatrix}
 $$
 
 ```{r}
-P <- matrix(c(0.9, 0.1, 0, 0,
-              0.9, 0, 0.1, 0,
-              0.8, 0, 0.1, 0.1,
-              0, 0, 0, 1), nrow = 4, byrow = TRUE)
+P <- matrix(c(
+    0.9, 0.1, 0, 0,
+    0.9, 0, 0.1, 0,
+    0.8, 0, 0.1, 0.1,
+    0, 0, 0, 1
+), nrow = 4, byrow = TRUE)
 
 calculate_by_eigenvector <- function(P) {
-  vector <- eigen(t(P))$vectors[, 1]
-  return(sapply(vector / sum(vector), Re))
+    vector <- eigen(t(P))$vectors[, 1]
+    return(sapply(vector / sum(vector), Re))
 }
 
 calculate_by_power_method <- function(P, n) {
-  for (i in 1:n) {
-    P <- P %*% P
-  }
-  return(P[1,])
+    for (i in 1:n) {
+        P <- P %*% P
+    }
+    return(P[1, ])
 }
 
 print("The limiting probability by eigenvector pn for the state “028” is:")
@@ -189,17 +191,17 @@ sequence <- c(1, 1, 1)
 expected_length <- c()
 
 for (i in 1:N) {
-  length <- 3
-  while (TRUE) {
-    sequence[length] <- sample(0:9, 1)
-    if (sequence[length] == TLN[3] &&
-      sequence[length - 1] == TLN[2] &&
-      sequence[length - 2] == TLN[1]) {
-      break
+    length <- 3
+    while (TRUE) {
+        sequence[length] <- sample(0:9, 1)
+        if (sequence[length] == TLN[3] &&
+            sequence[length - 1] == TLN[2] &&
+            sequence[length - 2] == TLN[1]) {
+            break
+        }
+        length <- length + 1
     }
-    length <- length + 1
-  }
-  expected_length[i] <- length
+    expected_length[i] <- length
 }
 
 print("The expected length E(T) till the first occurrence of the TLN is:")
@@ -405,33 +407,6 @@ alphas <- c(0.1, 0.05, 0.01)
 
 #### A. Verify that the confidence intervals of level $1 − a$ constructed via (1)–(4) above contain the parameter $\theta = \frac{1}{\lambda}$ approx. $100(1 − α)\%$ of times.
 
-1. Approximating using chi-square distribution.
-
-The $(1-\alpha)100$ confidence interval for $\lambda$ is:
-$$\left[\frac{\chi^2(2n\overline{x},\ \alpha/2)}{2n},\ \frac{\chi^2(2n\overline{x},\ 1-\alpha/2)}{2n}\right]$$
-$\chi^2(v,\ p)$ is the p'th quantile of chi-square distribution with v degrees of freedom.
-
-```{r}
-rate_chi <- c(0, 0, 0)
-lengths_chi <- c()
-for (k in 1:3) {
-    for (i in 1:m) {
-        mean <- mean(datas[, i])
-        left <- qchisq(alphas[k] / 2, df = 2 * n * mean) / (2 * n)
-        right <- qchisq(1 - alphas[k] / 2, df = 2 * n * mean) / (2 * n)
-
-        lengths_chi <- append(lengths_chi, right - left)
-        if (left <= lambda & lambda <= right) {
-            rate_chi[k] <- rate_chi[k] + 1
-        }
-    }
-}
-rate_chi <- rate_chi / m
-for (k in 1:3) {
-    cat("The approximation of parameter lambda when alpha =", alphas[k], "is:", rate_chi[k], "\n")
-}
-```
-
 2. Approximating using normal approximation with known variance.
 
 $$ \mu=\theta\ \ \ \ \sigma^2 = \theta $$
@@ -449,10 +424,10 @@ for (k in 1:3) {
     for (i in 1:m) {
         mean <- mean(datas[, i])
         z <- qnorm(1 - alphas[k] / 2, mean = 0, sd = 1)
-        epsilon <- sd * z
+        epsilon <- sd * z / sqrt(n)
+
         left <- mean - epsilon
         right <- mean + epsilon
-
         lengths_known_var <- append(lengths_known_var, right - left)
         if (left <= theta & theta <= right) {
             rate_known_var[k] <- rate_known_var[k] + 1
@@ -477,7 +452,7 @@ for (k in 1:3) {
         mean <- mean(datas[, i])
         sd <- sd(datas[, i])
         z <- qnorm(1 - alphas[k] / 2, mean = 0, sd = 1)
-        epsilon <- sd * z
+        epsilon <- sd * z / sqrt(n)
 
         left <- mean - epsilon
         right <- mean + epsilon
